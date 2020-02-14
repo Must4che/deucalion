@@ -26,7 +26,7 @@ npm i --save deucalion
 
 ## ❯ Metrics
 
-**IMPORTANT:** You can find all default metrics definitions [HERE](default-metrics-definition.md).
+**IMPORTANT:** You can find all default metrics definitions [HERE](dhttps://github.com/Must4che/deucalion/blob/master/default-metrics-definition.md).
 
 This object exposes 2 basic methods:
 
