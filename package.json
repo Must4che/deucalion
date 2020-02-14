@@ -1,0 +1,54 @@
+{
+    "name": "deucalion",
+    "version": "0.0.1",
+    "description": "Deucalion the son of Prometheus. This library exposes easy-to-use API for collecting metrics from microservices.",
+    "author": "Must4che",
+    "license": "MIT",
+    "main": "index.js",
+    "scripts": {
+        "test": "npm run lint && npm run madge && lab -c -t 80 -v --shuffle -l",
+        "lint": "eslint . --max-warnings=0",
+        "lint-fix": "eslint . --fix",
+        "madge": "madge ./lib && madge ./lib -c"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:Must4che/deucalion.git"
+    },
+    "husky": {
+        "hooks": {
+            "pre-commit": "lint-staged",
+            "pre-push": "npm run lint && npm test"
+        }
+    },
+    "lint-staged": {
+        "**/*.{js,json,md}": [
+            "prettier --write",
+            "git add"
+        ]
+    },
+    "dependencies": {
+        "@hapi/hapi": "^19.0.5",
+        "@promster/express": "^4.0.0",
+        "@promster/fastify": "^3.0.0",
+        "@promster/hapi": "^4.0.0",
+        "@promster/server": "^4.0.0",
+        "express": "^4.17.1",
+        "fastify": "^2.11.0",
+        "prom-client": "^11.5.3"
+    },
+    "devDependencies": {
+        "code": "~5.2.4",
+        "eslint": "~5.15.1",
+        "eslint-config-airbnb-base": "~13.1.0",
+        "eslint-config-prettier": "~4.0.0",
+        "eslint-plugin-import": "~2.16.0",
+        "eslint-plugin-prettier": "~3.0.1",
+        "husky": "~1.3.1",
+        "lab": "~18.0.1",
+        "lint-staged": "~8.1.3",
+        "madge": "^3.7.0",
+        "prettier": "~1.16.4",
+        "sinon": "~7.2.3"
+    }
+}
