@@ -1,0 +1,16 @@
+{
+    "extends": ["airbnb-base", "plugin:prettier/recommended"],
+    "env": {
+        "node": true,
+        "es6": true
+    },
+    "plugins": ["prettier"],
+    "rules": {
+        "indent": ["error", 4, { "SwitchCase": 1 }],
+        "strict": [0, "global"],
+        "prettier/prettier": "error",
+        "consistent-return": 0,
+        "no-else-return": 0,
+        "no-console": "off"
+    }
+}

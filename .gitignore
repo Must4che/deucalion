@@ -1,0 +1,15 @@
+.DS_Store
+
+### Visual Studio Code ###
+.vscode
+
+### NodeJS ###
+coverage/
+node_modules/
+.npmrc
+package-lock.json
+xunit.xml
+.env
+
+### logs ###
+*.log

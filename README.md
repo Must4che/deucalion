@@ -183,8 +183,6 @@ So you can setup your object by calling setup function and passing it your own r
 const { route } = require('deucalion');
 
 route.setup({
-    method: 'GET',
-    url: '/hello'
     handler: (request, reply) => {
         return reply.code(200).send('Hello!');
     }
