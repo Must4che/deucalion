@@ -28,14 +28,24 @@ npm i --save deucalion
 
 **Deucalions main component.**
 
-This object creates plugin for your chosen framework (Currently supporting Fastify, Hapi, Express, Marblejs) and it can collect generic service metrics. This plugin can be then registerd as any other middleware for these frameworks. Immediately after import you can access plugin object with default settings for fastify. Or you can initialize it with framework name. You can read more on how to use in [@promster Documentation](https://github.com/tdeekens/promster/blob/master/readme.md) and more on how metrics are collected for Prometheus in [prom-client Documentation](https://github.com/siimon/prom-client/blob/master/README.md).
+This object creates plugin for your chosen framework (Currently supporting Fastify, Hapi, Express, Marblejs) and it can collect generic service metrics. This plugin can be then registerd as any other middleware for these frameworks. Immediately after import you can access plugin object with default settings for Express. Or you can initialize it with framework name. You can read more on how to use in [@promster Documentation](https://github.com/tdeekens/promster/blob/master/readme.md) and more on how metrics are collected for Prometheus in [prom-client Documentation](https://github.com/siimon/prom-client/blob/master/README.md).
+
+### Express
+
+```
+const { plugin } = require('deucalion');
+
+const metricsPlugin = plugin.create();
+
+expressApp.use(metricsPlugin({expressApp, options }));
+```
 
 ### Fastify
 
 ```
 const { plugin } = require('deucalion');
 
-fastifyApp.register(plugin.create()):
+fastifyApp.register(plugin.setup('fastify').create()):
 ```
 
 ### Hapi
@@ -47,16 +57,6 @@ const { plugin } = require('deucalion');
 const promPlugin = plugin.setup('hapi').create();
 
 hapiApp.register(promPlugin({ options }));
-```
-
-### Express
-
-```
-const { plugin } = require('deucalion');
-
-const metricsPlugin = plugin.setup('express').create();
-
-expressApp.use(metricsPlugin({expressApp, options }));
 ```
 
 ### Marblejs
