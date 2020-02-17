@@ -1,4 +1,4 @@
-name: Publishing
+name: Pipeline
 
 on:
   push:
@@ -12,8 +12,20 @@ on:
       - '*.md'
 
 jobs:
+
+  test:
+    name: unit-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+      - run: npm install
+      - run: npm test
+
   publish:
-    name: NPM package
+    name: publishing
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
