@@ -117,7 +117,7 @@ const { route: metricsRoute } = require('deucalion');
 
 ## ❯ Custom Metrics
 
-**IMPORTANT:** You can find all custom metrics definitions [HERE](custom-metrics-definition.md).
+**IMPORTANT:** You can find all default metrics definitions [HERE](https://github.com/Must4che/deucalion/blob/master/custom-metrics-definition.md).
 
 This object exposes 2 basic methods(both chainable):
 
