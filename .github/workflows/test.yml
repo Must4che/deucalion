@@ -1,4 +1,4 @@
-name: Test
+name: Testing
 
 on:
   push:
@@ -10,8 +10,8 @@ on:
       - 'package.json'
 
 jobs:
-  publish:
-    name: publish
+  test:
+    name: Library unit-tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

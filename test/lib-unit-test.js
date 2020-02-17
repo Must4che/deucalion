@@ -9,11 +9,11 @@ const fastify = require('fastify');
 
 const { expect } = Code;
 const lib = require('../index');
-const metricsConfig = require('../lib/metrics/metricsConfig');
+const metricsConfig = require('../lib/custom/metricsConfig');
 const defaultConfig = require('../lib/config');
 const util = require('../lib/util');
 
-const { route, plugin, server, metrics, getSummary, getContentType } = lib;
+const { route, plugin, server, customMetrics, getSummary, getContentType } = lib;
 exports.lab = lab;
 
 let pluginSetupSpy;
@@ -73,21 +73,28 @@ lab.experiment('Metrics npm package', () => {
 
         lab.test('should return express plugin when called with correct settings', async () => {
             const name = 'express';
-            plugin.setup(name);
-            const pluginInstance = plugin.create();
+            const pluginInstance = plugin.setup(name).create();
 
             expect(pluginInstance).to.be.a.function();
             expect(pluginInstance.name).to.be.equal('createMiddleware');
             expect(pluginSetupSpy.calledOnceWith(name)).to.be.true();
         });
 
-        lab.test('should return express plugin when called with correct settings', async () => {
+        lab.test('should return hapi plugin when called with correct settings', async () => {
             const name = 'hapi';
-            plugin.setup(name);
-            const pluginInstance = plugin.create();
+            const pluginInstance = plugin.setup(name).create();
 
             expect(pluginInstance).to.be.a.function();
             expect(pluginInstance.name).to.be.equal('createPlugin');
+            expect(pluginSetupSpy.calledOnceWith(name)).to.be.true();
+        });
+
+        lab.test('should return marblejs plugin when called with correct settings', async () => {
+            const name = 'marblejs';
+            const pluginInstance = plugin.setup(name).create();
+
+            expect(pluginInstance).to.be.a.function();
+            expect(pluginInstance.name).to.be.equal('createMiddleware');
             expect(pluginSetupSpy.calledOnceWith(name)).to.be.true();
         });
     });
@@ -156,7 +163,7 @@ lab.experiment('Metrics npm package', () => {
     });
     lab.experiment('METRICS', () => {
         lab.beforeEach(async () => {
-            metricsSpy = sinon.spy(metrics, 'init');
+            metricsSpy = sinon.spy(customMetrics, 'init');
             metricsConfigSpy = sinon.spy(metricsConfig, 'setup');
         });
 
@@ -166,15 +173,15 @@ lab.experiment('Metrics npm package', () => {
         });
 
         lab.test('object should be initialized properly with default setting', async () => {
-            metrics.init({ name: 'defaultTest' });
+            customMetrics.init({ name: 'defaultTest' });
 
             expect(metricsSpy.calledOnce).to.be.true();
             expect(metricsConfigSpy.calledOnce).to.be.true();
-            expect(Object.keys(metrics).length).to.be.equal(metricsConfig.metrics.length);
+            expect(Object.keys(customMetrics).length).to.be.equal(metricsConfig.metrics.length);
         });
 
         lab.test('object should be initialized properly with default setting and status Gauges', async () => {
-            metrics.init({
+            customMetrics.init({
                 name: 'gaugeTest',
                 dbStatus: true,
                 kafkaStatus: true
@@ -182,7 +189,7 @@ lab.experiment('Metrics npm package', () => {
 
             expect(metricsSpy.calledOnce).to.be.true();
             expect(metricsConfigSpy.calledOnce).to.be.true();
-            expect(Object.keys(metrics).length).to.be.equal(metricsConfig.metrics.length);
+            expect(Object.keys(customMetrics).length).to.be.equal(metricsConfig.metrics.length);
         });
 
         lab.test('object should be initialized properly with custom setting', async () => {
@@ -195,16 +202,16 @@ lab.experiment('Metrics npm package', () => {
                     labelNames: ['service']
                 }
             ];
-            metrics.init(serviceName, setting);
+            customMetrics.init(serviceName, setting);
 
             expect(metricsSpy.withArgs(serviceName, setting).calledOnce).to.be.true();
             expect(metricsConfigSpy.calledOnceWith(serviceName)).to.be.true();
-            expect(Object.keys(metrics).length).to.be.equal(setting.length);
+            expect(Object.keys(customMetrics).length).to.be.equal(setting.length);
         });
 
         lab.test('object should throw error on incorrect init', async () => {
             try {
-                metrics.init();
+                customMetrics.init();
                 Code.fail('This shound fail with an Exception');
             } catch (e) {
                 expect(e.name).to.be.equal('Error');
@@ -221,10 +228,9 @@ lab.experiment('Metrics npm package', () => {
                 labelNames: ['service']
             };
 
-            metrics.init(customConfig);
-            metrics.addMetric(metricSetting);
+            customMetrics.init(customConfig).addMetric(metricSetting);
 
-            const newMetricCreated = Object.keys(metrics).includes(metricSetting.name);
+            const newMetricCreated = Object.keys(customMetrics).includes(metricSetting.name);
 
             expect(metricsSpy.calledOnceWith(customConfig)).to.be.true();
             expect(metricsConfigSpy.calledOnceWith(customConfig)).to.be.true();
@@ -248,11 +254,10 @@ lab.experiment('Metrics npm package', () => {
                 }
             ];
 
-            metrics.init(metricPrefix);
-            metrics.addMetric(metricSettings);
+            customMetrics.init(metricPrefix).addMetric(metricSettings);
 
-            const firstMetricCreated = Object.keys(metrics).includes(metricSettings[0].name);
-            const secondMetricCreated = Object.keys(metrics).includes(metricSettings[0].name);
+            const firstMetricCreated = Object.keys(customMetrics).includes(metricSettings[0].name);
+            const secondMetricCreated = Object.keys(customMetrics).includes(metricSettings[0].name);
 
             expect(metricsSpy.calledOnceWith(metricPrefix)).to.be.true();
             expect(metricsConfigSpy.calledOnceWith(metricPrefix)).to.be.true();
@@ -269,8 +274,8 @@ lab.experiment('Metrics npm package', () => {
                 labelNames: ['service']
             };
             try {
-                metrics.init(metricPrefix);
-                metrics.addMetric(incorrectSetting);
+                customMetrics.init(metricPrefix);
+                customMetrics.addMetric(incorrectSetting);
                 Code.fail('This shound fail with an Exception');
             } catch (e) {
                 expect(e.name).to.be.equal('TypeError');
@@ -287,10 +292,10 @@ lab.experiment('Metrics npm package', () => {
                 labelNames: ['service']
             };
 
-            metrics.init(metricPrefix);
-            metrics.addMetric(metricSetting);
+            customMetrics.init(metricPrefix);
+            customMetrics.addMetric(metricSetting);
 
-            const testCounter = metrics[metricSetting.name];
+            const testCounter = customMetrics[metricSetting.name];
             testCounter.inc();
 
             expect(metricsSpy.calledOnceWith(metricPrefix)).to.be.true();
