@@ -1,16 +1,18 @@
-# Deucalion: Under development
+# Deucalion
 
-Deucalion the son of Prometheus.
+![Pipeline](https://github.com/Must4che/deucalion/workflows/Pipeline/badge.svg) ![unit-tests](https://github.com/Must4che/deucalion/workflows/unit-tests/badge.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Exposes easy-to-use API for collecting metrics on microserices. Powerd by packages from [@promster](https://github.com/tdeekens/promster) & [prom-client](https://github.com/siimon/prom-client) and Cloud Native Computing Foundation graduated project [Prometheus](https://github.com/prometheus/prometheus).
+### Deucalion son of Prometheus.
 
-**IMPORTANT NOTE:** All 4 main components are powered by **Singleton Pattern** and can be imported around without need to instantiate or set them up again.
+Exposes easy-to-use API for collecting metrics on microserices. Powerd by packages [@promster](https://github.com/tdeekens/promster), [prom-client](https://github.com/siimon/prom-client) and CNCF graduated project [Prometheus](https://github.com/prometheus/prometheus).
+
+**IMPORTANT NOTE:** All 4 main components are **Singletons** and can be imported around without need to instantiate or set them again.
 
 This library exposes main **objects**:
 
 -   Plugin
 -   Route
--   Custom Metrics
+-   Metrics
 -   Server
 
 and functions for writing custom **handlers**:
@@ -35,9 +37,9 @@ This object creates plugin for your chosen framework (Currently supporting Fasti
 ```
 const { plugin } = require('deucalion');
 
-const metricsPlugin = plugin.create();
+const deucalionPlugin = plugin.create();
 
-expressApp.use(metricsPlugin({expressApp, options }));
+expressApp.use(deucalionPlugin({expressApp, options }));
 ```
 
 ### Fastify
@@ -54,9 +56,9 @@ fastifyApp.register(plugin.setup('fastify').create()):
 const { plugin } = require('deucalion');
 
 // plugi.setup can be chained like this
-const promPlugin = plugin.setup('hapi').create();
+const deucalionPlugin = plugin.setup('hapi').create();
 
-hapiApp.register(promPlugin({ options }));
+hapiApp.register(deucalionPlugin({ options }));
 ```
 
 ### Marblejs
@@ -64,8 +66,10 @@ hapiApp.register(promPlugin({ options }));
 ```
 const { plugin, getContentType, getSummary } = require('deucalion');
 
+const deucalionPlugin = plugin.setup('marblejs').create();
+
 const middlewares = [
-    plugin.setup('marblejs').create()
+    deucalionPlugin()
 ];
 
 const serveMetrics$ = EffectFactory.matchPath('/metrics')
@@ -94,62 +98,65 @@ Is pretty much self explanastory. It it is an object with REST specifications th
 }
 ```
 
-So you can setup your object by calling setup function and passing it your own route specification:
+So you can setup your object by calling setup function and passing it your own route specification. `Feel free to pass in schema, beforHandler or define any other key in route object. Setup will apply all of them`:
 
 ```
 const { route } = require('deucalion');
+const { metrics } = require('./schemas');
 
 route.setup({
     handler: (request, reply) => {
         return reply.code(200).send('Hello!');
-    }
+    },
+    schema: metrics
 });
 ```
 
 Then you can use it as any other route object. For example:
 
 ```
+// fastify app
 const routes = require('./routes');
-const { route: metricsRoute } = require('deucalion');
+const { route: deucalionRoute } = require('deucalion');
 
-[...routes, metricsRoute].forEach((route) => server.route(route));
+[...routes, deucalionRoute].forEach((route) => server.route(route));
 ```
 
-## ❯ Custom Metrics
+## ❯ Metrics
 
 **IMPORTANT:** You can find all default metrics definitions [HERE](https://github.com/Must4che/deucalion/blob/master/custom-metrics-definition.md).
 
 This object exposes 2 basic methods(both chainable):
 
--   **init** - Requires at least one parameter (service name(always required), custom metrics definition).
+-   **init** - Requires at least one parameter (service name - `required`, custom metrics definition).
 -   **addMetric** - This method can be used to one or multiple metrics after init.
 
 Basic init only needs name of your service. And it will create basic custom metrics objects.
 
 ```
-const { customMetrics } = require('deucalion');
+const { metrics } = require('deucalion');
 
-customMetrics.init({ name: 'identity_service' });
+metrics.init({ name: 'identity_service' });
 ```
 
-**IMPORTANT:** If you want to collect also **Database and Kafka status Gauges** you must initialize metrics with atributes like in this example bellow. In case you want to collect Gauges you must write and define your own controller. For more info checkout sections **❯ Route** and **❯ getContentType(), getSummary()**.
+**IMPORTANT:** If you want to collect also **Database and Kafka status Gauges** you must initialize metrics with atributes like in this example bellow. In case you want to collect Gauges you must write your own logic to get those statuses and then set them on gauge object. For more info checkout sections **Route, getContentType(), getSummary()** and [prom-client Documentation](https://github.com/siimon/prom-client/blob/master/README.md).
 
 ```
-const { customMetrics } = require('deucalion');
+const { metrics } = require('deucalion');
 
-customMetrics.init({
+metrics.init({
     name: 'identity_service',
-    dbStatus: true,
-    kafkaStatus: true
+    dbStatus: true, // false by default
+    kafkaStatus: true // false by default
 });
 ```
 
 Additionaly you can dedefine your own metrics by following this simple expample.
 
 ```
-const { customMetrics } = require('deucalion');
+const { metrics } = require('deucalion');
 
-customMetrics.init({ name: 'identity_service' }, [
+metrics.init({ name: 'identity_service' }, [
     {
         metricType: 'Counter',
         name: 'identity_service_request_counter',
@@ -172,21 +179,21 @@ customMetrics.init({ name: 'identity_service' }, [
 ]);
 ```
 
-You can always initialize with basic custom metrics for service and then add new netrics with **addMetric** function() accepts bot single definition object or array od objects.
+You can always initialize with basic custom metrics for service and then add new netrics with **addMetric** function accepts bot single definition object or array of objects.
 
 ```
-const { customMetrics } = require('deucalion');
+const { metrics } = require('deucalion');
 
-customMetrics.init({ name: 'identity_service' });
+metrics.init({ name: 'identity_service' });
 
-customMetrics.addMetric({
+metrics.addMetric({
     metricType: 'Counter',
     name: 'identity_service_custom_request_counter',
     help: 'Counts number of custom requests',
     labelNames: ['service']
 });
 
-customMetrics.addMetric([
+metrics.addMetric([
     {
         metricType: 'Histogram',
         name: 'identity_service_custom_response_time',
@@ -205,29 +212,29 @@ customMetrics.addMetric([
 
 Then You can work with your defined metrics same as you would with standard prometheus metrics objects. You can access them through **name**. You can find more information on how to use Prometheus objects at [prom-client Documentation](https://github.com/siimon/prom-client).
 
-Metrics object built on top of Singleton patter so after init you can inport this library around and use all defind metrics as this:
+Custom Metrics are built as Singleton so after init you can inport this library around and use all defind metrics as this:
 
 ```
 // controller.js
-const { requestCounter } = require('deucalion').metrics;
+const { identity_service_custom_request_counter } = require('deucalion').metrics;
 
 const actions = require('./actions);
 
 module.exports.getAllMembers = async (request, reply) => {
     const members = await actions.getAllMemebers();
-    requestCounter.inc();
+    identity_service_custom_request_counter.inc();
     return members;
 };
 ```
 
 ## ❯ Server
 
-In some cases you might want to expose the gathered metrics through an individual server. This is useful for instance to not have GET /metrics expose internal server and business metrics to the outside world. See example bellow:
+In some cases you might want to expose the gathered metrics through an individual server. This is useful for instance to not have GET /metrics expose internal server and business metrics to the outside world. Or simply because your service does not expose rest API. See example bellow:
 
 ```
 const { server } = require('deucalion');
 
-// server runs by default on port 8888
+// server runs by default on port 7788
 const app = server.start();
 ```
 
@@ -239,6 +246,8 @@ const { server } = require('deucalion');
 const app = server.start(1234);
 ```
 
+For aditional info check out [@promster/server Documentation](https://github.com/tdeekens/promster/blob/master/readme.md).
+
 ## ❯ getContentType(), getSummary()
 
 Are an exposed methods useful for writing your own REST handler for /metrics endpoint. It returns content type needed for Prometheus in case of getContentType. And return collected metrics in case of getSummary.
@@ -249,11 +258,14 @@ const { getContentType, getSummary } = require('deucalion');
 module.exports.handler = (requests, reply) => {
     try {
         return reply
+            .header('Content-Type', getContentType())
             .code(200)
-            .header(getContentType())
             .send(getSummary());
     } catch (e) {
-        return reply.code(500).send(e);
+        return reply
+            .header('Content-Type', 'application/json')
+            .code(500)
+            .send(e);
     }
 };
 ```

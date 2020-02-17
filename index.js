@@ -1,13 +1,13 @@
 'use strict';
 
 const { getSummary, getContentType } = require('./lib/helper');
-const customMetrics = require('./lib/custom');
+const metrics = require('./lib/custom');
 const plugin = require('./lib/plugin');
 const route = require('./lib/route');
 const server = require('./lib/server');
 
 module.exports = {
-    customMetrics,
+    metrics,
     plugin,
     route,
     server,

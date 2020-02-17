@@ -10,7 +10,6 @@
         "strict": [0, "global"],
         "prettier/prettier": "error",
         "consistent-return": 0,
-        "no-else-return": 0,
-        "no-console": "off"
+        "no-else-return": 0
     }
 }
