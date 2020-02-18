@@ -4,30 +4,23 @@ on:
   push:
     branches:
       - master
-    paths:
-      - 'lib/*'
-      - 'test/*'
-      - 'index.js'
-      - 'package.json'
-      - '*.md'
 
 jobs:
-
   test:
-    name: unit-test
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x, 13.x]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
-          node-version: '12.x'
+          node-version: ${{ matrix.node-version }}
       - run: npm install
-      - run: npm lint
-      - run: npm madge
+      - run: npm run lint
+      - run: npm run madge
       - run: npm test
-
   publish:
-    name: publish
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

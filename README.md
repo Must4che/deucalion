@@ -1,6 +1,6 @@
 # Deucalion
 
-![Pipeline](https://github.com/Must4che/deucalion/workflows/Pipeline/badge.svg) ![unit-tests](https://github.com/Must4che/deucalion/workflows/unit-tests/badge.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![build](https://github.com/Must4che/deucalion/workflows/build/badge.svg) [![npm version](https://img.shields.io/npm/v/deucalion?color=blue&label=npm&logo=npm)](https://www.npmjs.com/package/deucalion) ![NPM downloads](https://img.shields.io/npm/dt/deucalion?color=blue&logo=npm) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ### Deucalion son of Prometheus.
 

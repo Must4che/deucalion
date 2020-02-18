@@ -1,7 +1,7 @@
 {
     "name": "deucalion",
-    "version": "0.1.0",
-    "description": "Deucalion the son of Prometheus. This library exposes easy-to-use API for collecting metrics from microservices.",
+    "version": "0.1.1",
+    "description": "Deucalion son of Prometheus. This library exposes easy-to-use API for collecting metrics from microservices.",
     "author": "Must4che",
     "license": "MIT",
     "main": "index.js",
